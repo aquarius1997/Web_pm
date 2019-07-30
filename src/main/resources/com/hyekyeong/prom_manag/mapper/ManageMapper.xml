@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hyekyeong.prom_manag.mapper.ManageMapper">
+
+    <!--검색을 위한 동적 sql -->
+    <sql id="criteria">
+        <trim prefix="(" suffix=") AND " prefixOverrides="OR">
+            <foreach item="type" collection="typeArr">
+                <trim prefix="OR">
+                    <choose>
+                        <when test="type == 'T'.toString()">
+                            pm_title like '%'||#{keyword}||'%'
+                        </when>
+                        <when test="type == 'C'.toString()">
+                            pm_code like '%'||#{keyword}||'%'
+                        </when>
+<!--                        <when test="type == 'W'.toString()">-->
+<!--                            writer like '%'||#{keyword}||'%'-->
+<!--                        </when>-->
+                    </choose>
+                </trim>
+            </foreach>
+        </trim>
+    </sql>
+
+    <!--DB에서 페이지 처리를 한 리스트 가져오기-->
+    <select id="getListWithPaging" resultType="com.hyekyeong.prom_manag.domain.ManageVO">
+<!--    <![CDATA[-->
+<!--  select-->
+<!--    pm_mno, pm_title, pm_buy_f, pm_buy_p, pm_num, pm_text, pm_regdate-->
+<!--  from-->
+<!--      (-->
+<!--      select /*+INDEX_DESC(tbl_manag pk_manag) */-->
+<!--        rownum rn, pm_mno, pm_title, pm_buy_f, pm_buy_p, pm_num, pm_text, pm_regdate-->
+<!--      from-->
+<!--        tbl_pm-->
+<!--      where-->
+<!--  ]]>-->
+            <![CDATA[
+          select
+            pm_mno, pm_title, pm_buy_f, pm_buy_p, pm_num, pm_text, pm_regdate, pm_code
+          from
+              (
+              select /*+INDEX_DESC(tbl_manag pk_manag) */
+                rownum rn, pm_mno, pm_title, pm_buy_f, pm_buy_p, pm_num, pm_text, pm_regdate, pm_code
+              from
+                tbl_pm
+              where
+          ]]>
+        <!-- sql 삽입-->
+        <include refid="criteria"></include>
+
+        <![CDATA[
+      rownum <= #{pageNum} * #{amount}
+        order by pm_mno
+      )
+  where rn > (#{pageNum} -1) * #{amount}
+  order by pm_mno
+  ]]>
+    </select>
+
+
+    <!--홍보 상품의 디테일을 리턴한다-->
+    <select id="read" resultType="com.hyekyeong.prom_manag.domain.ManageVO">
+        select * from tbl_pm where pm_mno = #{pm_mno}
+    </select>
+
+    <!--전체 데이터의 개수 구하기-->
+    <select id="getTotalCount" resultType="int">
+        select count(*) from tbl_pm where
+        <include refid="criteria"></include>
+        pm_mno>0
+    </select>
+
+    <!--상품 상세 정보를 업데이트-->
+    <update id="update">
+        update tbl_pm
+        set pm_title=#{pm_title},
+        pm_text=#{pm_text},
+        pm_buy_f=#{pm_buy_f},
+        pm_buy_p=#{pm_buy_p},
+        pm_num=#{pm_num},
+        pm_code=#{pm_code}
+        where pm_mno=#{pm_mno}
+    </update>
+
+    <!--insert문이 실행되고 생성된 PK값을 알아야 하는 경우-->
+    <insert id="insertSelectKey">
+        <selectKey keyProperty="pm_mno" order="BEFORE" resultType="long">
+            select seq_pm.nextval from dual
+        </selectKey>
+
+        insert into tbl_pm (pm_mno, pm_title, pm_buy_f, pm_buy_p, pm_num, pm_text, pm_code)
+        values (#{pm_mno}, #{pm_title}, #{pm_buy_f}, #{pm_buy_p}, #{pm_num}, #{pm_text}, #{pm_code})
+    </insert>
+
+    <!--상품 정보(게시물)을 삭제한다-->
+    <delete id="delete">
+        delete tbl_pm where pm_mno = #{pm_mno}
+    </delete>
+
+
+    <!--DB에서 수량이 3개 이하인 상품들을 가져온다-->
+    <select id="getOrderList" resultType="com.hyekyeong.prom_manag.domain.ManageVO">
+        <![CDATA[
+          select
+            pm_mno, pm_title, pm_buy_f, pm_buy_p, pm_num, pm_text, pm_regdate, pm_code
+          from tbl_pm where pm_num <4]]>
+    </select>
+
+
+</mapper>

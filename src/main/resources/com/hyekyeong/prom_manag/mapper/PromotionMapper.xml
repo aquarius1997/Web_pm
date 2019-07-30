@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hyekyeong.prom_manag.mapper.PromotionMapper">
+
+<!--    프로모션 페이지에 전체(12개) 홍보 상품들을 보여준다-->
+    <select id="getList" resultType="com.hyekyeong.prom_manag.domain.ManageVO">
+        <![CDATA[
+        select * from tbl_pm order by pm_mno asc]]>
+    </select>
+
+    <!--홍보 상품의 디테일을 리턴한다-->
+    <select id="read" resultType="com.hyekyeong.prom_manag.domain.ManageVO">
+        select * from tbl_pm where pm_mno = #{pm_mno}
+    </select>
+
+
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hyekyeong.prom_manag.mapper.BoardAttachMapper">
+
+    <insert id="insert">
+		insert into tbl_attach_2 (uuid, uploadpath, filename,
+		filetype, pm_mno)
+		values (#{uuid}, #{uploadPath}, #{fileName},
+		#{fileType}, #{pm_mno} )
+	</insert>
+
+    <delete id="delete">
+
+		delete from tbl_attach_2 where uuid = #{uuid}
+
+	</delete>
+
+    <select id="findByMno"
+            resultType="com.hyekyeong.prom_manag.domain.BoardAttachVO">
+		select * from tbl_attach_2 where pm_mno = #{pm_mno}
+	</select>
+
+    <delete id="deleteAll">
+
+		delete tbl_attach_2 where pm_mno = #{pm_mno}
+
+	</delete>
+
+    <select id="getOldFiles"
+            resultType="com.hyekyeong.prom_manag.domain.BoardAttachVO">
+
+		select * from tbl_attach_2 where uploadpath = to_char(sysdate -1 ,'yyyy\mm\dd')
+
+	</select>
+
+	<select id="show_all" resultType="com.hyekyeong.prom_manag.domain.BoardAttachVO">
+<!--        <![CDATA[-->
+<!--        select * from tbl_attach_2 where pm_mno>0]]>-->
+		<![CDATA[
+        select * from tbl_attach_2 order by pm_mno]]>
+	</select>
+
+
+</mapper>
